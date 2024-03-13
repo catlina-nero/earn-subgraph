@@ -12,11 +12,9 @@
     "deploy": "graph deploy pledge-test --ipfs http://34.150.61.246:5001 --node http://34.150.61.246:8020",
     "deploy-local": "graph deploy pledge-test --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020"
   },
-  "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.68.5",
-    "@graphprotocol/graph-ts": "^0.33.0"
-  },
   "dependencies": {
+    "@graphprotocol/graph-cli": "^0.68.5",
+    "@graphprotocol/graph-ts": "^0.33.0",
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0"
   }

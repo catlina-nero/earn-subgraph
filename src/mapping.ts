@@ -1,119 +1,101 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, store } from "@graphprotocol/graph-ts";
+import {
+  Staked,
+  Unstaked,
+  Deposit,
+  UserAddInterest,
+  UserWithdraw,
+  StakedBack
+} from "../generated/Pledge/Pledge"; // Adjust the import path based on your generated ABIs
+import {
+  UserPledge,
+  FrozenBalance,
+  PledgeTypeStaked,
+  UserPledgeType,
+  PledgeItem,
+} from "../generated/schema";
 
-import { User, DepositEvent, StakedEvent, UnstakedEvent, UserWithdrawEvent, UserWithdrawUnFrozenEvent, UserAddInterestEvent, StakedBackEvent } from "../generated/schema"
-
-export function handleDeposit(event: DepositEvent): void {
-  let entity = new DepositEvent(event.transaction.hash.toHex())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    user.availableBalance = BigInt.fromI32(0)
+export function handleDeposit(event: Deposit): void {
+  let user = UserPledge.load(event.params.user.toHex());
+  if (user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.totalPledged = BigInt.fromI32(0);
   }
-  user.availableBalance = user.availableBalance.plus(event.params.amount)
-  user.save()
-
-  entity.amount = event.params.amount
-  entity.user = user.id
-  entity.timestamp = event.block.timestamp
-  entity.save()
+  user.availableBalance = user.availableBalance.plus(event.transaction.value);
+  user.save();
 }
 
-// 处理质押事件
-export function handleStaked(event: StakedEvent): void {
-  let entity = new StakedEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    // 初始化用户属性
+export function handleStakedBack(event: StakedBack): void {
+  let user = UserPledge.load(event.params.user.toHex());
+  if (user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.totalPledged = BigInt.fromI32(0);
   }
-  // 更新用户属性，如质押金额
-  user.save()
-
-  entity.user = user.id
-  entity.pledgeId = event.params.pledgeId
-  entity.amount = event.params.amount
-  entity.pledgeType = event.params.pledgeType
-  entity.timestamp = event.block.timestamp
-  entity.save()
+  user.availableBalance = user.availableBalance.plus(event.params.amount).plus(event.params.amount);
+  user.interest = user.interest.plus(event.params.amount);
+  user.totalPledged = user.totalPledged.minus(event.params.amount);
+  user.save();
 }
 
-// 处理解质押事件
-export function handleUnstaked(event: UnstakedEvent): void {
-  let entity = new UnstakedEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    // 初始化用户属性
+export function handleStaked(event: Staked): void {
+  let entity = PledgeTypeStaked.load(event.params.pledgeId.toHex());
+  if (entity == null) {
+    entity = new PledgeTypeStaked(event.params.pledgeId.toHex());
   }
-  // 更新用户属性，如解质押
-  user.save()
+  entity.pledgeId = event.params.pledgeId.toHex();
+  const newItem = new UserPledgeType(event.transaction.hash.toHex());
+  newItem.address = event.params.user.toHex();
+  newItem.pledgeType = event.params.pledgeType.toI32();
+  newItem.pledgeAmount = event.params.amount;
 
-  entity.pledgeId = event.params.pledgeId
-  entity.user = user.id
-  entity.amount = event.params.amount
-  entity.pledgeType = event.params.pledgeType
-  entity.timestamp = event.block.timestamp
-  entity.save()
+  let user = UserPledge.load(event.params.user.toHex());
+  user.availableBalance = user.availableBalance.minus(event.params.amount);
+  user.totalPledged = user.totalPledged.plus(event.params.amount);
+
+  let currentPledge = new PledgeItem(event.params.pledgeId.toHex());
+  currentPledge.pledgeId = event.params.pledgeId.toHex();
+  currentPledge.pledgeType = event.params.pledgeType.toI32();
+  currentPledge.pledgeAmount = event.params.amount;
+
+  currentPledge.save();
+  user.save();
+  newItem.save();
+  entity.save();
 }
 
-// 处理用户提款事件
-export function handleUserWithdraw(event: UserWithdrawEvent): void {
-  let entity = new UserWithdrawEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    // 初始化用户属性
-  }
-  // 更新用户可用余额等属性
-  user.save()
+export function handleUnstaked(event: Unstaked): void {
+  let user = UserPledge.load(event.params.user.toHex());
+  let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
+  user.availableBalance = user.availableBalance.plus(currentPledge.pledgeAmount);
+  user.totalPledged = user.totalPledged.minus(currentPledge.pledgeAmount);
 
-  entity.user = user.id
-  entity.amount = event.params.amount
-  entity.timestamp = event.block.timestamp
-  entity.save()
+  let currentPledgeTypeStaked = PledgeTypeStaked.load(event.params.pledgeId.toHex());
+  store.remove("PledgeTypeStaked", currentPledgeTypeStaked.id);
+
+  let currentPledgeItem = PledgeItem.load(event.params.pledgeId.toHex());
+  store.remove("PledgeItem", currentPledgeItem.id);
+
+  user.save();
 }
 
-// 处理用户解冻提款事件
-export function handleUserWithdrawUnFrozen(event: UserWithdrawUnFrozenEvent): void {
-  let entity = new UserWithdrawUnFrozenEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  // 由于这个事件可能涉及多个解冻操作，可以考虑如何在模型中反映这一点
-  entity.totalUnFrozen = event.params.totalUnFrozen
-  entity.timestamp = event.block.timestamp
-  entity.save()
+export function handleUserWithdraw(event: UserWithdraw): void {
+  let entity = new FrozenBalance(event.transaction.hash.toHex());
+  let availableBalance = UserPledge.load(event.params.user.toHex()).availableBalance;
+  entity.address = event.params.user.toHex();
+  entity.amount = availableBalance;
+  entity.releaseTime = new Date().getTime() + 1000 * 60 * 60 * 24 * 7;
+  
+  let user = UserPledge.load(event.params.user.toHex());
+  user.availableBalance = BigInt.fromI32(0);
+
+  user.save();
+  entity.save();
 }
 
-// 处理添加利息事件
-export function handleUserAddInterest(event: UserAddInterestEvent): void {
-  let entity = new UserAddInterestEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    // 初始化用户属性
-  }
-  // 更新用户利息等属性
-  user.save()
-
-  entity.user = user.id
-  entity.amount = event.params.amount
-  entity.timestamp = event.block.timestamp
-  entity.save()
-}
-
-// 处理质押金额退回事件
-export function handleStakedBack(event: StakedBackEvent): void {
-  let entity = new StakedBackEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
-  let user = User.load(event.params.user.toHex())
-  if (!user) {
-    user = new User(event.params.user.toHex())
-    // 初始化用户属性
-  }
-  // 更新用户属性，如可用余额
-  user.save()
-
-  entity.pledgeId = event.params.pledgeId
-  entity.user = user.id
-  entity.amount = event.params.amount
-  entity.pledgeType = event.params.pledgeType
-  entity.timestamp = event.block.timestamp
-  entity.save()
+// // Handle the UserAddInterest event
+export function handleUserAddInterest(event: UserAddInterest): void {
+  let user = UserPledge.load(event.params.user.toHex());
+  user.availableBalance = user.availableBalance.plus(event.params.amount);
+  user.interest = user.interest.plus(event.params.amount);
+  user.save();
 }

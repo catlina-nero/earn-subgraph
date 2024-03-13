@@ -1,86 +1,46 @@
-type User @entity {
-  id: ID!
-  pledges: [Pledge!]! @derivedFrom(field: "user")
-  availableBalance: BigInt!
-  govs: Boolean
-  userInterest: BigInt
-  frozenBalances: [FrozenBalance!]! @derivedFrom(field: "user")
-}
-
-type Pledge @entity {
-  id: ID! # 使用keccak256生成的质押ID作为唯一标识
-  user: User!
-  pledgeType: Int
-  amount: BigInt
-  timestamp: BigInt
-}
-
 type UserPledgeType @entity {
-  id: ID! # 可以使用用户地址和质押类型组合生成的唯一标识
-  stakedAddress: Bytes # 用户地址
-  pledgeType: Int
-  pledgeAmount: BigInt
+  id: ID!
+  address: String!
+  pledgeType: Int!
+  pledgeAmount: BigInt!
+  staked: PledgeTypeStaked!
 }
 
 type FrozenBalance @entity {
-  id: ID! # 使用keccak256生成的冻结ID作为唯一标识
-  user: User!
-  amount: BigInt
-  releaseTime: BigInt
+  id: ID!
+  address: String!
+  amount: BigInt!
+  releaseTime: Int! # UNIX timestamp for when the balance becomes available.
+  user: UserPledge!
 }
 
-type DepositEvent @entity {
+# Entities and object types.
+type PledgeItem @entity {
   id: ID!
-  user: User! # 链接到User实体
-  amount: BigInt
-  timestamp: BigInt
+  user: UserPledge!
+  pledgeId: ID!
+  pledgeType: Int!
+  pledgeAmount: BigInt!
 }
 
-type StakedEvent @entity {
+type PledgeTypeStaked @entity {
   id: ID!
-  pledge: Pledge! # 链接到Pledge实体
-  pledgeId: Bytes
-  user: User!
-  amount: BigInt
-  pledgeType: Int
-  timestamp: BigInt
+  pledgeId: String!
+  pledgeDetail: [UserPledgeType!] @derivedFrom(field: "staked")
 }
 
-type UnstakedEvent @entity {
+type UserPledge @entity {
   id: ID!
-  pledgeId: Bytes
-  user: User!
-  amount: BigInt
-  pledgeType: Int
-  timestamp: BigInt
+  pledgeIds: [PledgeItem!] @derivedFrom(field: "user")
+  address: String!
+  availableBalance: BigInt!
+  frozenBalance: [FrozenBalance!] @derivedFrom(field: "user")
+  totalPledged: BigInt!
+  interest: BigInt!
 }
 
-type UserWithdrawEvent @entity {
+type GovStatusChange @entity {
   id: ID!
-  user: User!
-  amount: BigInt
-  timestamp: BigInt
-}
-
-type UserWithdrawUnFrozenEvent @entity {
-  id: ID!
-  user: User!
-  totalUnFrozen: BigInt
-  timestamp: BigInt
-}
-
-type UserAddInterestEvent @entity {
-  id: ID!
-  user: User!
-  amount: BigInt
-  timestamp: BigInt
-}
-
-type StakedBackEvent @entity {
-  id: ID!
-  pledgeId: Bytes
-  user: User!
-  amount: BigInt
-  pledgeType: Int
-  timestamp: BigInt
+  userAddress: String!
+  isGov: Boolean!
 }
