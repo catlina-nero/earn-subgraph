@@ -31,6 +31,8 @@ export function handleStakedBack(event: StakedBack): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
   }
   if (event.params.amount != BigInt.fromI32(0)) {
@@ -55,6 +57,12 @@ export function handleStaked(event: Staked): void {
   newItem.pledgeAmount = event.params.amount;
 
   let user = UserPledge.load(event.params.user.toHex());
+  if(user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
+    user.totalPledged = BigInt.fromI32(0);
+  }
   if (event.params.amount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.minus(event.params.amount as BigInt);
     user.totalPledged = user.totalPledged.plus(event.params.amount as BigInt);
@@ -74,6 +82,12 @@ export function handleStaked(event: Staked): void {
 export function handleUnstaked(event: Unstaked): void {
   let user = UserPledge.load(event.params.user.toHex());
   let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
+  if(user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
+    user.totalPledged = BigInt.fromI32(0);
+  }
   if (currentPledge.pledgeAmount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.plus(
       currentPledge.pledgeAmount as BigInt
@@ -102,6 +116,12 @@ export function handleUserWithdraw(event: UserWithdraw): void {
   entity.releaseTime = BigInt.fromI32(event.block.timestamp).plus(d);
 
   let user = UserPledge.load(event.params.user.toHex());
+  if(user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
+    user.totalPledged = BigInt.fromI32(0);
+  }
   user.availableBalance = BigInt.fromI32(0);
 
   user.save();
@@ -111,6 +131,12 @@ export function handleUserWithdraw(event: UserWithdraw): void {
 // // Handle the UserAddInterest event
 export function handleUserAddInterest(event: UserAddInterest): void {
   let user = UserPledge.load(event.params.user.toHex());
+  if(user == null) {
+    user = new UserPledge(event.params.user.toHex());
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
+    user.totalPledged = BigInt.fromI32(0);
+  }
   if (event.params.amount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.plus(event.params.amount as BigInt);
     user.interest = user.interest.plus(event.params.amount as BigInt);
