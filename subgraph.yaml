@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: Pledge for Mainnet
-repository: https://github.com/graphprotocol/example-subgraph
+repository: https://github.com/catlina-nero/earn-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
