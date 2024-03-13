@@ -10,7 +10,7 @@ type FrozenBalance @entity {
   id: ID!
   address: String!
   amount: BigInt!
-  releaseTime: Int! # UNIX timestamp for when the balance becomes available.
+  releaseTime: BigInt! # UNIX timestamp for when the balance becomes available.
   user: UserPledge!
 }
 
