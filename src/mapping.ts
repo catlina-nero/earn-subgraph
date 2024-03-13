@@ -21,9 +21,7 @@ export function handleDeposit(event: Deposit): void {
     user = new UserPledge(event.params.user.toHex());
     user.totalPledged = BigInt.fromI32(0);
   }
-  if (event.transaction.value == null) {
-    user.availableBalance = user.availableBalance.plus(BigInt.fromI32(0));
-  } else {
+  if (event.transaction.value != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.plus(event.transaction.value);
   }
   user.save();
@@ -35,7 +33,7 @@ export function handleStakedBack(event: StakedBack): void {
     user = new UserPledge(event.params.user.toHex());
     user.totalPledged = BigInt.fromI32(0);
   }
-  if (event.params.amount != null) {
+  if (event.params.amount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance
       .plus(event.params.amount)
       .plus(event.params.amount);
@@ -57,7 +55,7 @@ export function handleStaked(event: Staked): void {
   newItem.pledgeAmount = event.params.amount;
 
   let user = UserPledge.load(event.params.user.toHex());
-  if (event.params.amount != null) {
+  if (event.params.amount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.minus(event.params.amount);
     user.totalPledged = user.totalPledged.plus(event.params.amount);
   }
@@ -76,7 +74,7 @@ export function handleStaked(event: Staked): void {
 export function handleUnstaked(event: Unstaked): void {
   let user = UserPledge.load(event.params.user.toHex());
   let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
-  if (currentPledge.pledgeAmount != null) {
+  if (currentPledge.pledgeAmount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.plus(
       currentPledge.pledgeAmount
     );
@@ -113,7 +111,7 @@ export function handleUserWithdraw(event: UserWithdraw): void {
 // // Handle the UserAddInterest event
 export function handleUserAddInterest(event: UserAddInterest): void {
   let user = UserPledge.load(event.params.user.toHex());
-  if (event.params.amount != null) {
+  if (event.params.amount != BigInt.fromI32(0)) {
     user.availableBalance = user.availableBalance.plus(event.params.amount);
     user.interest = user.interest.plus(event.params.amount);
     user.save();
