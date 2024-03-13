@@ -8,9 +8,9 @@ dataSources:
     name: Pledge
     network: mainnet
     source:
-      address: '0x5c90Eb8847Ce7A83Ac5b14d3C5c75126684823C2'
+      address: '0x4D99253D6c27F73a7C540565dFe1f60c37b30301'
       abi: Pledge
-      startBlock: 64197
+      startBlock: 1246
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
