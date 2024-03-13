@@ -100,7 +100,8 @@ export function handleUserWithdraw(event: UserWithdraw): void {
     .availableBalance;
   entity.address = event.params.user.toHex();
   entity.amount = availableBalance;
-  entity.releaseTime = new Date().getTime() + 1000 * 60 * 60 * 24 * 7;
+  let d = BigInt.fromI32(60).times(BigInt.fromI32(60)).times(BigInt.fromI32(24)).times(BigInt.fromI32(7));
+  entity.releaseTime = BigInt.fromI32(event.block.timestamp).plus(d);
 
   let user = UserPledge.load(event.params.user.toHex());
   user.availableBalance = BigInt.fromI32(0);
