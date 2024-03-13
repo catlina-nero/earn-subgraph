@@ -1,0 +1,36 @@
+specVersion: 0.0.4
+description: Pledge for Mainnet
+repository: https://github.com/graphprotocol/example-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Pledge
+    network: mainnet
+    source:
+      address: '0x5c90Eb8847Ce7A83Ac5b14d3C5c75126684823C2'
+      abi: Pledge
+      startBlock: 64197
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Pledge
+      abis:
+        - name: Pledge
+          file: ./abis/Pledge.json
+      eventHandlers:
+        - event: Deposit(indexed address,uint256)
+          handler: handleDeposit
+        - event: Staked(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleStaked
+        - event: StakedBack(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleStakedBack
+        - event: Unstaked(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleUnstaked
+        - event: UserAddInterest(indexed address,uint256)
+          handler: handleUserAddInterest
+        - event: UserWithdraw(indexed address,uint256)
+          handler: handleUserWithdraw
+      file: ./src/mapping.ts
