@@ -125,7 +125,7 @@ export function handleUnstaked(event: Unstaked): void {
     currentPledgeItem = new PledgeItem(event.params.pledgeId.toHex());
     currentPledgeItem.user = event.params.user.toHex();
     currentPledgeItem.pledgeId = event.params.pledgeId.toHex();
-    currentPledgeItem.pledgeType = BigInt.fromI32(3);
+    currentPledgeItem.pledgeType = BigInt.fromI32(0);
     currentPledgeItem.pledgeAmount = BigInt.fromI32(0);
   }
   store.remove("PledgeItem", currentPledgeItem.id);
