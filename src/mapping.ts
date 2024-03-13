@@ -135,7 +135,7 @@ export function handleUserWithdraw(event: UserWithdraw): void {
   let availableBalance = entity2.availableBalance;
   entity.address = event.params.user.toHex();
   entity.amount = availableBalance;
-  entity.releaseTime = event.block.timestamp.plus(BigInt.fromI32(604800));
+  entity.releaseTime = event.block.timestamp.plus(BigInt.fromI64(604800));
 
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
