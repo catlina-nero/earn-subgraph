@@ -90,7 +90,7 @@ export function handleUnstaked(event: Unstaked): void {
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
   }
-  
+
   let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
   if (currentPledge == null) {
     currentPledge = new PledgeItem(event.params.pledgeId.toHex());
@@ -135,11 +135,7 @@ export function handleUserWithdraw(event: UserWithdraw): void {
   let availableBalance = entity2.availableBalance;
   entity.address = event.params.user.toHex();
   entity.amount = availableBalance;
-  let d = BigInt.fromI32(60)
-    .times(BigInt.fromI32(60))
-    .times(BigInt.fromI32(24))
-    .times(BigInt.fromI32(7));
-  entity.releaseTime = BigInt.fromI32(event.block.timestamp).plus(d);
+  entity.releaseTime = event.block.timestamp.plus(BigInt.fromI32(604800));
 
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
