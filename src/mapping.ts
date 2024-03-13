@@ -31,6 +31,7 @@ export function handleStakedBack(event: StakedBack): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
     user.availableBalance = BigInt.fromI32(0);
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
@@ -59,6 +60,7 @@ export function handleStaked(event: Staked): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
     user.availableBalance = BigInt.fromI32(0);
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
@@ -86,6 +88,7 @@ export function handleUnstaked(event: Unstaked): void {
 
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
     user.availableBalance = BigInt.fromI32(0);
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
@@ -113,12 +116,17 @@ export function handleUnstaked(event: Unstaked): void {
     currentPledgeTypeStaked = new PledgeTypeStaked(
       event.params.pledgeId.toHex()
     );
+    currentPledgeTypeStaked.pledgeId = event.params.pledgeId.toHex();
   }
   store.remove("PledgeTypeStaked", currentPledgeTypeStaked.id);
 
   let currentPledgeItem = PledgeItem.load(event.params.pledgeId.toHex());
   if (currentPledgeItem == null) {
     currentPledgeItem = new PledgeItem(event.params.pledgeId.toHex());
+    currentPledgeItem.user = event.params.user.toHex();
+    currentPledgeItem.pledgeId = event.params.pledgeId.toHex();
+    currentPledgeItem.pledgeType = BigInt.fromI32(3);
+    currentPledgeItem.pledgeAmount = BigInt.fromI32(0);
   }
   store.remove("PledgeItem", currentPledgeItem.id);
 
@@ -141,6 +149,7 @@ export function handleUserWithdraw(event: UserWithdraw): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
     user.availableBalance = BigInt.fromI32(0);
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
@@ -156,6 +165,7 @@ export function handleUserAddInterest(event: UserAddInterest): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
     user.availableBalance = BigInt.fromI32(0);
     user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
