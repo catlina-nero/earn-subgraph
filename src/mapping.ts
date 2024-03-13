@@ -21,7 +21,7 @@ export function handleDeposit(event: Deposit): void {
     user = new UserPledge(event.params.user.toHex());
     user.totalPledged = BigInt.fromI32(0);
   }
-  user.availableBalance = user.availableBalance.plus(event.transaction.value);
+  user.availableBalance = user.availableBalance.plus(event.transaction.value || BigInt.fromI32(0));
   user.save();
 }
 
@@ -31,9 +31,9 @@ export function handleStakedBack(event: StakedBack): void {
     user = new UserPledge(event.params.user.toHex());
     user.totalPledged = BigInt.fromI32(0);
   }
-  user.availableBalance = user.availableBalance.plus(event.params.amount).plus(event.params.amount);
-  user.interest = user.interest.plus(event.params.amount);
-  user.totalPledged = user.totalPledged.minus(event.params.amount);
+  user.availableBalance = user.availableBalance.plus(event.params.amount || BigInt.fromI32(0)).plus(event.params.amount || BigInt.fromI32(0));
+  user.interest = user.interest.plus(event.params.amount || BigInt.fromI32(0));
+  user.totalPledged = user.totalPledged.minus(event.params.amount || BigInt.fromI32(0));
   user.save();
 }
 
@@ -49,8 +49,8 @@ export function handleStaked(event: Staked): void {
   newItem.pledgeAmount = event.params.amount;
 
   let user = UserPledge.load(event.params.user.toHex());
-  user.availableBalance = user.availableBalance.minus(event.params.amount);
-  user.totalPledged = user.totalPledged.plus(event.params.amount);
+  user.availableBalance = user.availableBalance.minus(event.params.amount || BigInt.fromI32(0));
+  user.totalPledged = user.totalPledged.plus(event.params.amount || BigInt.fromI32(0));
 
   let currentPledge = new PledgeItem(event.params.pledgeId.toHex());
   currentPledge.pledgeId = event.params.pledgeId.toHex();
@@ -66,8 +66,8 @@ export function handleStaked(event: Staked): void {
 export function handleUnstaked(event: Unstaked): void {
   let user = UserPledge.load(event.params.user.toHex());
   let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
-  user.availableBalance = user.availableBalance.plus(currentPledge.pledgeAmount);
-  user.totalPledged = user.totalPledged.minus(currentPledge.pledgeAmount);
+  user.availableBalance = user.availableBalance.plus(currentPledge.pledgeAmount || BigInt.fromI32(0));
+  user.totalPledged = user.totalPledged.minus(currentPledge.pledgeAmount || BigInt.fromI32(0));
 
   let currentPledgeTypeStaked = PledgeTypeStaked.load(event.params.pledgeId.toHex());
   store.remove("PledgeTypeStaked", currentPledgeTypeStaked.id);
@@ -95,7 +95,7 @@ export function handleUserWithdraw(event: UserWithdraw): void {
 // // Handle the UserAddInterest event
 export function handleUserAddInterest(event: UserAddInterest): void {
   let user = UserPledge.load(event.params.user.toHex());
-  user.availableBalance = user.availableBalance.plus(event.params.amount);
-  user.interest = user.interest.plus(event.params.amount);
+  user.availableBalance = user.availableBalance.plus(event.params.amount || BigInt.fromI32(0));
+  user.interest = user.interest.plus(event.params.amount || BigInt.fromI32(0));
   user.save();
 }
