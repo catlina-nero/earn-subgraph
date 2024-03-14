@@ -11,13 +11,12 @@ type FrozenBalance @entity {
   address: String!
   amount: BigInt!
   releaseTime: BigInt! # UNIX timestamp for when the balance becomes available.
-  user: UserPledge!
 }
 
 # Entities and object types.
 type PledgeItem @entity {
   id: ID!
-  user: UserPledge!
+  address: String!
   pledgeId: ID!
   pledgeType: Int!
   pledgeAmount: BigInt!
@@ -31,10 +30,8 @@ type PledgeTypeStaked @entity {
 
 type UserPledge @entity {
   id: ID!
-  pledgeIds: [PledgeItem!] @derivedFrom(field: "user")
   address: String!
   availableBalance: BigInt!
-  frozenBalance: [FrozenBalance!] @derivedFrom(field: "user")
   totalPledged: BigInt!
   interest: BigInt!
 }

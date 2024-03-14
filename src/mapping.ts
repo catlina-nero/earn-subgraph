@@ -78,6 +78,7 @@ export function handleStaked(event: Staked): void {
   currentPledge.pledgeId = event.params.pledgeId.toHex();
   currentPledge.pledgeType = event.params.pledgeType.toI32();
   currentPledge.pledgeAmount = event.params.amount;
+  currentPledge.address = event.params.user.toHex();
 
   currentPledge.save();
   user.save();
@@ -99,6 +100,9 @@ export function handleUnstaked(event: Unstaked): void {
   let currentPledge = PledgeItem.load(event.params.pledgeId.toHex());
   if (currentPledge == null) {
     currentPledge = new PledgeItem(event.params.pledgeId.toHex());
+    currentPledge.address = event.params.user.toHex();
+    currentPledge.pledgeId = event.params.pledgeId.toHex();
+    currentPledge.pledgeType = 3;
     currentPledge.pledgeAmount = BigInt.fromI32(0);
   }
 
@@ -122,15 +126,7 @@ export function handleUnstaked(event: Unstaked): void {
   }
   store.remove("PledgeTypeStaked", currentPledgeTypeStaked.id);
 
-  let currentPledgeItem = PledgeItem.load(event.params.pledgeId.toHex());
-  if (currentPledgeItem == null) {
-    currentPledgeItem = new PledgeItem(event.params.pledgeId.toHex());
-    currentPledgeItem.user = event.params.user.toHex();
-    currentPledgeItem.pledgeId = event.params.pledgeId.toHex();
-    currentPledgeItem.pledgeType = 3;
-    currentPledgeItem.pledgeAmount = BigInt.fromI32(0);
-  }
-  store.remove("PledgeItem", currentPledgeItem.id);
+  store.remove("PledgeItem", currentPledge.id);
 
   user.save();
 }
