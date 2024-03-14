@@ -19,11 +19,12 @@ export function handleDeposit(event: Deposit): void {
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
     user = new UserPledge(event.params.user.toHex());
+    user.address = event.params.user.toHex();
+    user.availableBalance = BigInt.fromI32(0);
+    user.interest = BigInt.fromI32(0);
     user.totalPledged = BigInt.fromI32(0);
   }
-  if (event.transaction.value != BigInt.fromI32(0)) {
-    user.availableBalance = user.availableBalance.plus(event.transaction.value);
-  }
+  user.availableBalance = user.availableBalance.plus(event.transaction.value);
   user.save();
 }
 
