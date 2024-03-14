@@ -50,6 +50,7 @@ export function handleStaked(event: Staked): void {
   let entity = PledgeTypeStaked.load(event.params.pledgeId.toHex());
   if (entity == null) {
     entity = new PledgeTypeStaked(event.params.pledgeId.toHex());
+    entity.pledgeId = event.params.pledgeId.toHex();
   }
   entity.pledgeId = event.params.pledgeId.toHex();
   const newItem = new UserPledgeType(event.transaction.hash.toHex());
