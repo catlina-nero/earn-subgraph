@@ -58,6 +58,7 @@ export function handleStaked(event: Staked): void {
   newItem.address = event.params.user.toHex();
   newItem.pledgeType = event.params.pledgeType.toI32();
   newItem.pledgeAmount = event.params.amount;
+  newItem.staked = entity.id;
 
   let user = UserPledge.load(event.params.user.toHex());
   if (user == null) {
